@@ -1,0 +1,50 @@
+{
+  "name": "stevymarlino/addon-shopper-stock-alerts",
+  "description": "Back-in-stock alerts add-on for Laravel Shopper.",
+  "keywords": ["Laravel", "stock", "builder", "addon"],
+  "type": "library",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Stevy Endaman",
+      "email": "stevyabessolo@gmail.com"
+    }
+  ],
+  "require": {
+    "php": "^8.3",
+    "shopper/framework": "3.x-dev"
+  },
+  "require-dev": {
+    "larastan/larastan": "^3.0",
+    "laravel/pint": "^1.29",
+    "orchestra/testbench": "^11.0",
+    "pestphp/pest": "^4.7",
+    "pestphp/pest-plugin-laravel": "^4.0",
+    "rector/rector": "^2.0"
+  },
+  "autoload": {
+    "psr-4": {
+      "Stevymarlino\\AddonShopperStockAlerts\\": "src/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Stevymarlino\\AddonShopperStockAlerts\\Tests\\": "tests/"
+    }
+  },
+  "extra": {
+    "laravel": {
+      "providers": [
+        "Stevymarlino\\AddonShopperStockAlerts\\AddonShopperStockAlertsServiceProvider"
+      ]
+    }
+  },
+  "config": {
+    "sort-packages": true,
+    "allow-plugins": {
+      "pestphp/pest-plugin": true
+    }
+  },
+  "minimum-stability": "dev",
+  "prefer-stable": true
+}
