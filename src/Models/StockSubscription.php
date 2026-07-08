@@ -17,6 +17,7 @@ use Shopper\Core\Models\Product;
  * @property Carbon $created_at
  * @property Carbon $updated_at
  * @property-read Product $product
+ * @property-read Model $customer
  */
 class StockSubscription extends Model
 {
