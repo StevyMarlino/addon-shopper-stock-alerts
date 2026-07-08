@@ -46,12 +46,7 @@ class RestockObserver
             ->get();
 
         $subscriptions->each(function (StockSubscription $subscription) use ($product): void {
-            $customer = $subscription->customer;
-
-            if ($customer !== null) {
-                Notification::send($customer, new BackInStockNotification($product));
-            }
-
+            Notification::send($subscription->customer, new BackInStockNotification($product));
             $subscription->markNotified();
         });
     }
