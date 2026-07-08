@@ -24,6 +24,8 @@ final class AddonShopperStockAlertsServiceProvider extends ServiceProvider
 
         if (config('shopper.addons.stock-alerts', true) !== false) {
             InventoryHistory::observe(RestockObserver::class);
+
+            $this->loadRoutesFrom(__DIR__.'/../routes/api.php');
         }
     }
 }
