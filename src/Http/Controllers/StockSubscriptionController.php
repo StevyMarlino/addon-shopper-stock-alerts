@@ -38,10 +38,15 @@ final class StockSubscriptionController
         /** @var Authenticatable $customer */
         $customer = $request->user();
 
-        $subscription = StockSubscription::query()->firstOrCreate([
-            'customer_id' => $customer->getAuthIdentifier(),
-            'product_id' => $product->getKey(),
-        ]);
+        $subscription = StockSubscription::query()->updateOrCreate(
+            [
+                'customer_id' => $customer->getAuthIdentifier(),
+                'product_id' => $product->getKey(),
+            ],
+            [
+                'notified_at' => null,
+            ],
+        );
 
         return response()->json(['data' => $subscription], 201);
     }
