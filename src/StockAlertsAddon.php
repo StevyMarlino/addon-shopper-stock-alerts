@@ -6,6 +6,7 @@ namespace Stevymarlino\AddonShopperStockAlerts;
 
 use Shopper\Addon\BaseAddon;
 use Shopper\ShopperPanel;
+use Stevymarlino\AddonShopperStockAlerts\Sidebar\StockAlertsSidebar;
 
 final class StockAlertsAddon extends BaseAddon
 {
@@ -20,10 +21,11 @@ final class StockAlertsAddon extends BaseAddon
         $index = config('stock-alerts.components.subscription-index');
 
         $panel
-            ->addonRoutes(fn () => require __DIR__ . '/../routes/cpanel.php')
-            ->addonViews('stock-alerts', __DIR__ . '/../resources/views')
+            ->addonRoutes(fn () => require __DIR__.'/../routes/cpanel.php')
+            ->addonViews('stock-alerts', __DIR__.'/../resources/views')
             ->addonLivewireComponents([
                 'stock-alerts.subscription-index' => $index,
-            ]);
+            ])
+            ->addonSidebar(StockAlertsSidebar::class);
     }
 }
