@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Stevymarlino\AddonShopperStockAlerts\Livewire;
+namespace Stevymarlino\AddonShopperStockAlerts\Livewire\Pages\SubscriptionStock;
 
 use Filament\Actions\Action;
 use Filament\Actions\Concerns\InteractsWithActions;
@@ -17,10 +17,12 @@ use Filament\Tables\Table;
 use Illuminate\Contracts\View\View;
 use Mckenziearts\Icons\Untitledui\Enums\Untitledui;
 use Shopper\Livewire\Pages\AbstractPageComponent;
+use Shopper\Traits\HandlesAuthorizationExceptions;
 use Stevymarlino\AddonShopperStockAlerts\Models\StockSubscription;
 
-class StockSubscriptionIndex extends AbstractPageComponent implements HasActions, HasSchemas, HasTable
+class Index extends AbstractPageComponent implements HasActions, HasSchemas, HasTable
 {
+    use HandlesAuthorizationExceptions;
     use InteractsWithActions;
     use InteractsWithSchemas;
     use InteractsWithTable;
@@ -53,7 +55,7 @@ class StockSubscriptionIndex extends AbstractPageComponent implements HasActions
                     ->nullable()
                     ->trueLabel(__('Notified'))
                     ->falseLabel(__('Pending'))
-                    ->default(false), // en attente par défaut
+                    ->default(false),
             ])
             ->recordActions([
                 Action::make('delete')
@@ -69,7 +71,6 @@ class StockSubscriptionIndex extends AbstractPageComponent implements HasActions
 
     public function render(): View
     {
-        /** @phpstan-ignore-next-line argument.type */
         return view('stock-alerts::pages.subscriptions-index')
             ->title(__('Stock alerts'));
     }
