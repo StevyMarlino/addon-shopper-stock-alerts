@@ -69,6 +69,7 @@ class StockSubscriptionIndex extends AbstractPageComponent implements HasActions
 
     public function render(): View
     {
+        /** @phpstan-ignore-next-line argument.type */
         return view('stock-alerts::pages.subscriptions-index')
             ->title(__('Stock alerts'));
     }

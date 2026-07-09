@@ -13,7 +13,7 @@ final class AddonShopperStockAlertsServiceProvider extends ServiceProvider
 {
     public function register(): void
     {
-        $this->mergeConfigFrom(__DIR__ . '/../config/stock-alerts.php', 'stock-alerts');
+        $this->mergeConfigFrom(__DIR__.'/../config/stock-alerts.php', 'stock-alerts');
 
         $this->callAfterResolving('shopper', function (ShopperPanel $panel): void {
             $panel->addon(new StockAlertsAddon());
@@ -32,7 +32,7 @@ final class AddonShopperStockAlertsServiceProvider extends ServiceProvider
 
         if ($this->app->runningInConsole()) {
             $this->publishes([
-                __DIR__ . '/../config/stock-alerts.php' => config_path('stock-alerts.php'),
+                __DIR__.'/../config/stock-alerts.php' => config_path('stock-alerts.php'),
             ], 'shopper-config');
         }
     }
