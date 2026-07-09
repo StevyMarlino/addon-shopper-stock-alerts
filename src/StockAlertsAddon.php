@@ -16,6 +16,14 @@ final class StockAlertsAddon extends BaseAddon
 
     public function register(ShopperPanel $panel): void
     {
-        //
+        /** @var class-string $index */
+        $index = config('stock-alerts.components.subscription-index');
+
+        $panel
+            ->addonRoutes(fn () => require __DIR__ . '/../routes/cpanel.php')
+            ->addonViews('stock-alerts', __DIR__ . '/../resources/views')
+            ->addonLivewireComponents([
+                'stock-alerts.subscription-index' => $index,
+            ]);
     }
 }
