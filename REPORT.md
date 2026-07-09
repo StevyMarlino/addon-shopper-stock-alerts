@@ -6,10 +6,10 @@ All checks below were run on the final `v1.0.0` state of the package.
 
 ## Laravel Pint
 
-Command: `vendor/bin/pint`
+Command: `vendor/bin/pint` --test
 
 \`\`\`
-![img_3.png](img_3.png)
+![img_4.png](img_4.png)
 \`\`\`
 
 ## PHPStan (level 9)
