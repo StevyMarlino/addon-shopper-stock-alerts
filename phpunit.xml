@@ -16,7 +16,7 @@
     </source>
     <php>
         <env name="APP_ENV" value="testing"/>
-        <env name="APP_KEY" value="base64:2fl+Ktjkxq2wJdd1o/9uZ5vFgm3iF4nYgUwR6 VvXCE="/>
+        <env name="APP_KEY" value="base64:C92ySSJg83iL20BUZGN5/Rk6GgN33nNVx5UW/xbUeHI="/>
         <env name="DB_CONNECTION" value="testing"/>
         <env name="QUEUE_CONNECTION" value="sync"/>
         <env name="MAIL_MAILER" value="array"/>
