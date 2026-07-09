@@ -28,7 +28,6 @@ class RestockObserver
         $before = $stockable->getStock();
         $after = $before + $history->quantity;
 
-        // On ne veut QUE la transition 0 -> positif.
         if ($before > 0 || $after <= 0) {
             return;
         }

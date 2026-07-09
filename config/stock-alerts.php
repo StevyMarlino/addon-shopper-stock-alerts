@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-use Stevymarlino\AddonShopperStockAlerts\Livewire\StockSubscriptionIndex;
+use Stevymarlino\AddonShopperStockAlerts\Livewire\Pages\SubscriptionStock\Index;
 
 return [
     'components' => [
-        'subscription-index' => StockSubscriptionIndex::class,
+        'subscription-index' => Index::class,
     ],
 ];

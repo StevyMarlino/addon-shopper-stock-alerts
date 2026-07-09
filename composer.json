@@ -45,6 +45,12 @@
       "pestphp/pest-plugin": true
     }
   },
+  "repositories": [
+    {
+      "type": "path",
+      "url": "../shopper-packages/framework/packages/*"
+    }
+  ],
   "minimum-stability": "dev",
   "prefer-stable": true
 }
