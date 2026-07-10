@@ -2,7 +2,7 @@
 
 A back-in-stock alerts add-on for [Laravel Shopper](https://github.com/shopperlabs/shopper).
 
-Customers subscribe to out-of-stock products and are **automatically notified** (mail + database) as soon as the product is restocked. The add-on ships with a customer API, an automatic restock detector, and an admin view of pending subscriptions.
+Customers subscribe to out-of-stock products and are **automatically notified** (mail + database) as soon as the product is restocked. The add-on ships with a customer API, an automatic restock detector (queued, transaction-safe), and a permission-protected admin view of pending subscriptions.
 
 - **Package:** `stevymarlino/addon-shopper-stock-alerts`
 - **Namespace:** `Stevymarlino\AddonShopperStockAlerts`
@@ -74,9 +74,19 @@ php artisan make:notifications-table
 php artisan migrate
 ```
 
-### 4. Run a queue worker
+### 4. Seed the permissions
 
-Notifications are queued (`ShouldQueue`). Make sure a worker is running so alerts are delivered:
+The admin page is protected by the `alerts.browse` and `alerts.delete` permissions. Run the add-on's permission seeder once, after Shopper's own install (which creates the `administrator` role). It generates the `alerts.*` permissions and grants them to the admin role:
+
+```bash
+php artisan db:seed --class="Stevymarlino\AddonShopperStockAlerts\Database\Seeders\StockAlertsPermissionSeeder"
+```
+
+> Without this step, `alerts.browse` does not exist and the admin page returns a `403` for everyone. The seeder is idempotent and can be run again safely.
+
+### 5. Run a queue worker
+
+Restock notifications are dispatched to the queue (the detection job is `ShouldQueue`). Make sure a worker is running so alerts are delivered:
 
 ```bash
 php artisan queue:work
@@ -97,6 +107,17 @@ return [
 
 When disabled, the restock observer, the customer API and the admin page are all turned off.
 
+### Permissions
+
+The add-on ships two permissions, seeded in installation step 4:
+
+| Permission      | Protects                                                   |
+|-----------------|------------------------------------------------------------|
+| `alerts.browse` | Access to the admin *Subscriptions* page and sidebar entry |
+| `alerts.delete` | The delete action on a subscription                        |
+
+Both are granted to the `administrator` role by the seeder. Grant them to other roles through Shopper's role management if needed.
+
 ### Publishing the add-on config
 
 The add-on ships a small config file that declares its overridable component. Publish it if you need to customize it:
@@ -113,25 +134,23 @@ This creates `config/stock-alerts.php`.
 
 Three authenticated endpoints are exposed (protected by the `web` + `auth` middleware — the customer is resolved from the authenticated session, never from the request body):
 
-| Method   | URI                                                | Description                                   |
-|----------|----------------------------------------------------|-----------------------------------------------|
+| Method   | URI                                                | Description                                     |
+|----------|----------------------------------------------------|-------------------------------------------------|
 | `GET`    | `/stock-alerts/subscriptions`                      | List the authenticated customer's subscriptions |
-| `POST`   | `/stock-alerts/products/{product}/subscriptions`   | Subscribe to a product (`422` if in stock)    |
-| `DELETE` | `/stock-alerts/products/{product}/subscriptions`   | Unsubscribe from a product                    |
+| `POST`   | `/stock-alerts/products/{product}/subscriptions`   | Subscribe to a product (`422` if in stock)      |
+| `DELETE` | `/stock-alerts/products/{product}/subscriptions`   | Unsubscribe from a product                      |
 
 Route names: `stock-alerts.subscriptions.index`, `stock-alerts.subscriptions.store`, `stock-alerts.subscriptions.destroy`.
 
-A customer can only subscribe to a product that is **currently out of stock**; subscribing to an in-stock product returns `422`.
+A customer can only subscribe to a product that is **currently out of stock**; subscribing to an in-stock product returns `422`. Subscribing again to a product a customer was already notified about **re-arms** the subscription (it goes back to the pending queue).
 
 ### Automatic notification on restock
 
 When a product's total stock transitions from **0 to a positive quantity** (through any of Shopper's stock mutations — `setStock`, `mutateStock`), the add-on:
 
-1. detects the restock,
-2. sends a queued `BackInStockNotification` (mail **and** database) to every **pending** subscriber of that product,
-3. marks each subscription as notified.
+Subscriptions are **single-use**: once notified, a subscription leaves the pending queue. A customer who wants to be alerted again simply subscribes again (see above). This matches the "pending subscriptions" model of the requirement and avoids duplicate alerts.
 
-Subscriptions are **single-use**: once notified, a subscription leaves the pending queue. A customer who wants to be alerted again simply subscribes again. This matches the "pending subscriptions" model of the requirement and avoids duplicate alerts.
+Because delivery is queued, a running worker (`php artisan queue:work`) is required.
 
 ### Admin
 
