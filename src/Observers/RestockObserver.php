@@ -4,12 +4,10 @@ declare(strict_types=1);
 
 namespace Stevymarlino\AddonShopperStockAlerts\Observers;
 
-use Illuminate\Support\Facades\Notification;
 use Shopper\Core\Models\InventoryHistory;
 use Shopper\Core\Models\Product;
 use Shopper\Core\Models\ProductVariant;
-use Stevymarlino\AddonShopperStockAlerts\Models\StockSubscription;
-use Stevymarlino\AddonShopperStockAlerts\Notifications\BackInStockNotification;
+use Stevymarlino\AddonShopperStockAlerts\Jobs\NotifyStockSubscribers;
 
 class RestockObserver
 {
@@ -34,19 +32,8 @@ class RestockObserver
 
         $product = $stockable instanceof ProductVariant ? $stockable->product : $stockable;
 
-        if (! $product instanceof Product) {
-            return;
+        if ($product instanceof Product) {
+            NotifyStockSubscribers::dispatch($product->id)->afterCommit();
         }
-
-        $subscriptions = StockSubscription::query()
-            ->where('product_id', $product->getKey())
-            ->whereNull('notified_at')
-            ->with('customer')
-            ->get();
-
-        $subscriptions->each(function (StockSubscription $subscription) use ($product): void {
-            Notification::send($subscription->customer, new BackInStockNotification($product));
-            $subscription->markNotified();
-        });
     }
 }
