@@ -18,7 +18,7 @@ final class StockAlertsSidebar extends AbstractAdminSidebar
             $group->setAuthorized();
 
             $group->item(__('Subscriptions'), function (Item $item): void {
-                $item->setAuthorized();
+                $item->setAuthorized($this->user->hasPermissionTo('alerts.browse')); // @phpstan-ignore-line
                 $item->useSpa();
                 $item->route('shopper.stock-alerts.subscriptions.index');
                 $item->setIcon('phosphor-bell');

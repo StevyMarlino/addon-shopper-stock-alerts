@@ -27,6 +27,11 @@ class Index extends AbstractPageComponent implements HasActions, HasSchemas, Has
     use InteractsWithSchemas;
     use InteractsWithTable;
 
+    public function mount(): void
+    {
+        $this->authorize('alerts.browse');
+    }
+
     public function table(Table $table): Table
     {
         return $table
@@ -59,6 +64,8 @@ class Index extends AbstractPageComponent implements HasActions, HasSchemas, Has
             ])
             ->recordActions([
                 Action::make('delete')
+                    ->authorize('alerts.delete')
+                    ->visible((bool) shopper()->auth()->user()?->can('alerts.delete'))
                     ->label(__('Delete'))
                     ->icon(Untitledui::Trash03)
                     ->iconButton()

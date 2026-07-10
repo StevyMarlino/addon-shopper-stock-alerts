@@ -24,7 +24,8 @@
   },
   "autoload": {
     "psr-4": {
-      "Stevymarlino\\AddonShopperStockAlerts\\": "src/"
+      "Stevymarlino\\AddonShopperStockAlerts\\": "src/",
+      "Stevymarlino\\AddonShopperStockAlerts\\Database\\Seeders\\": "database/seeders/"
     }
   },
   "autoload-dev": {
