@@ -2,105 +2,44 @@
 
 declare(strict_types=1);
 
-use Illuminate\Support\Facades\Notification;
-use Stevymarlino\AddonShopperStockAlerts\Models\StockSubscription;
-use Stevymarlino\AddonShopperStockAlerts\Notifications\BackInStockNotification;
+use Illuminate\Support\Facades\Bus;
+use Stevymarlino\AddonShopperStockAlerts\Jobs\NotifyStockSubscribers;
 
 beforeEach(function (): void {
-    $this->user = createUser();
     $this->product = createProduct();
     $this->inventory = createInventory();
+    Bus::fake();
 });
 
-it('notifies pending subscribers when a product is restocked', function (): void {
-    Notification::fake();
+it('dispatches the notify job when a product is restocked', function (): void {
 
-    $inventory = $this->inventory;
-    $product = $this->product;
-    $customer = $this->user;
+    $this->product->setStock(newQuantity: 10, inventoryId: $this->inventory->id);
 
-    $subscription = StockSubscription::query()->create([
-        'customer_id' => $customer->id,
-        'product_id' => $product->id,
-    ]);
-
-    $product->setStock(newQuantity: 10, inventoryId: $inventory->id);
-
-    Notification::assertSentTo($customer, BackInStockNotification::class);
-
-    expect($subscription->refresh()->notified_at)->not->toBeNull();
+    Bus::assertDispatched(
+        NotifyStockSubscribers::class,
+        fn (NotifyStockSubscribers $job): bool => $job->productId === $this->product->id,
+    );
 });
 
-it('does not notify when the product was already in stock', function (): void {
-    Notification::fake();
+it('dispatches the notify job when stock is added via mutateStock', function (): void {
 
-    $inventory = $this->inventory;
-    $product = $this->product;
-    $product->setStock(newQuantity: 5, inventoryId: $inventory->id);
+    $this->product->mutateStock(inventoryId: $this->inventory->id, quantity: 10);
 
-    $customer = $this->user;
-
-    StockSubscription::query()->create([
-        'customer_id' => $customer->id,
-        'product_id' => $product->id,
-    ]);
-
-    $product->setStock(newQuantity: 15, inventoryId: $inventory->id);
-
-    Notification::assertNotSentTo($customer, BackInStockNotification::class);
+    Bus::assertDispatched(NotifyStockSubscribers::class);
 });
 
-it('notifies subscribers when stock is added via mutateStock', function (): void {
-    Notification::fake();
+it('does not dispatch when the product was already in stock', function (): void {
 
-    $inventory = $this->inventory;
-    $product = $this->product;
+    $this->product->setStock(newQuantity: 5, inventoryId: $this->inventory->id);
+    $this->product->setStock(newQuantity: 15, inventoryId: $this->inventory->id);
 
-    $customer = $this->user;
-
-    $subscription = StockSubscription::query()->create([
-        'customer_id' => $customer->id,
-        'product_id' => $product->id,
-    ]);
-
-    $product->mutateStock(inventoryId: $inventory->id, quantity: 10);
-
-    Notification::assertSentTo($customer, BackInStockNotification::class);
-
-    expect($subscription->refresh()->notified_at)->not->toBeNull();
+    Bus::assertDispatchedTimes(NotifyStockSubscribers::class, 1);
 });
 
-it('does not notify when the product was already in stock with mutation', function (): void {
-    Notification::fake();
+it('does not dispatch on a second positive mutation', function (): void {
 
-    $inventory = $this->inventory;
-    $product = $this->product;
-    $customer = $this->user;
+    $this->product->mutateStock(inventoryId: $this->inventory->id, quantity: 10);
+    $this->product->mutateStock(inventoryId: $this->inventory->id, quantity: 5);
 
-    StockSubscription::query()->create([
-        'customer_id' => $customer->id, 'product_id' => $product->id,
-    ]);
-
-    $product->mutateStock(inventoryId: $inventory->id, quantity: 10);
-    $product->mutateStock(inventoryId: $inventory->id, quantity: 5);
-
-    Notification::assertSentToTimes($customer, BackInStockNotification::class, 1);
-});
-
-it('re-arms a notified subscription when the customer subscribes again', function (): void {
-    $product = $this->product;
-    $customer = $this->user;
-
-    $subscription = StockSubscription::query()->create([
-        'customer_id' => $customer->id,
-        'product_id' => $product->id,
-        'notified_at' => now(),
-    ]);
-
-    $this->actingAs($customer)
-        ->postJson(route('stock-alerts.subscriptions.store', $product))
-        ->assertCreated();
-
-    expect($subscription->refresh()->notified_at)->toBeNull()
-        ->and(StockSubscription::query()->count())->toBe(1);
+    Bus::assertDispatchedTimes(NotifyStockSubscribers::class, 1);
 });
