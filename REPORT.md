@@ -6,32 +6,44 @@ All checks below were run on the final `v1.0.0` state of the package.
 
 ## Laravel Pint
 
-Command: `vendor/bin/pint` --test
-
-\`\`\`
-![img_4.png](img_4.png)
-\`\`\`
-
-## PHPStan (level 9)
-
-Command: `vendor/bin/phpstan analyse`
+Command: 
+```bash
+    vendor/bin/pint --test
+```
 
 \`\`\`
 ![img_1.png](img_1.png)
 \`\`\`
 
-## Rector (dry-run)
+## PHPStan (level 9)
 
-Command: `vendor/bin/rector process --dry-run`
+Command: 
+```bash
+  vendor/bin/phpstan analyse
+```
 
 \`\`\`
-![img_2.png](img_2.png)
+![img.png](img.png)
+\`\`\`
+
+## Rector (dry-run)
+
+Command: 
+```bash
+  vendor/bin/rector process --dry-run
+```
+
+\`\`\`
+![img_4.png](img_4.png)
 \`\`\`
 
 ## Tests (Pest)
 
-Command: `vendor/bin/pest`
+Command: 
+```bash
+  vendor/bin/pest
+```
 
 \`\`\`
-![img.png](img.png)
+![img_5.png](img_5.png)
 \`\`\`
